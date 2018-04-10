@@ -1,0 +1,17 @@
+---
+- name: List all package versions
+  become: True
+  hosts: "{{ variable_hosts }}"
+  vars:
+    - package_name: "{{ package }}"
+
+  tasks:
+    - name: The command
+      command:
+        yum list {{ package_name }} --showduplicates
+      register: psd_out
+
+    - name: Print the output
+      debug:
+        var: psd_out
+      when: psd_out.rc == 0
