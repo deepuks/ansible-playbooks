@@ -1,0 +1,45 @@
+---
+- name: Start RHEL 7.3 image using ansible docker module
+  hosts: master
+  become: True
+
+  tasks:
+    - name: Install docker service
+      yum:
+        name: docker
+        state: present
+      notify: docker_start
+
+    - name: Start docker daemon if stopped
+      service:
+        name: docker
+        state: started
+
+    - name: Import import docker-py module
+      yum:
+        name: python-docker-py
+        state: present
+      notify: docker_restart
+
+    - name: Start RHEL 7.3 image
+      docker_container:
+        name: rhel-7.3
+        image: registry.access.redhat.com/rhel7.3
+        state: started
+        detach: yes
+        interactive: yes
+        entrypoint: bash
+        recreate: yes
+
+  handlers:
+    - name: docker_start
+      service:
+        name: docker
+        state: started
+        enabled: True
+
+    - name: docker_restart
+      service:
+        name: docker
+        state: restarted
+
